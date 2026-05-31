@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Alerts{% endblock %}
+{% block content %}
+<div class="topbar"><h4>Low Attendance Alerts</h4></div>
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header"><h6>Send Alerts</h6></div>
+      <div class="card-body">
+        <div class="alert alert-info" style="font-size:12px;"><i class="bi bi-info-circle me-2"></i>Emails will be sent to all students with attendance below the threshold.</div>
+        <form method="GET" class="mb-3">
+          <label class="form-label fw-semibold">Threshold %</label>
+          <div class="input-group">
+            <input type="number" name="threshold" value="{{ threshold }}" min="1" max="100" class="form-control">
+            <button class="btn btn-outline-primary">Update</button>
+          </div>
+        </form>
+        <p class="text-muted" style="font-size:12px;"><strong>{{ low_students|length }}</strong> students below {{ threshold }}%</p>
+        <form method="POST" class="d-grid gap-2">
+          <button name="action" value="test" class="btn btn-outline-secondary">🔍 Dry Run (no emails)</button>
+          <button name="action" value="send_all" class="btn btn-danger" onclick="return confirm('Send alerts to {{ low_students|length }} students?')">
+            <i class="bi bi-send me-2"></i>Send Email Alerts
+          </button>
+        </form>
+        <div class="alert alert-warning mt-3" style="font-size:11px;">
+          <strong>Setup required:</strong> Edit <code>alerts.py</code> with your Gmail SMTP credentials to enable email sending.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-8">
+    <div class="card mb-3">
+      <div class="card-header"><h6>Students Below {{ threshold }}% Attendance</h6></div>
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+          <thead><tr><th class="ps-3">Name</th><th>Roll No</th><th>Subject</th><th>Present</th><th>Total</th><th>%</th></tr></thead>
+          <tbody>
+            {% for s in low_students %}
+            <tr>
+              <td class="ps-3">{{ s.name }}</td>
+              <td><code style="font-size:11px;">{{ s.roll_number }}</code></td>
+              <td>{{ s.subject_name }}</td>
+              <td>{{ s.present_count }}</td>
+              <td>{{ s.total_sessions }}</td>
+              <td><span class="badge-shortage">{{ s.percentage or 0 }}%</span></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" class="text-center text-muted py-4">No students below {{ threshold }}%.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h6>Alert History</h6></div>
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+          <thead><tr><th class="ps-3">Student</th><th>Type</th><th>Sent At</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for a in log %}
+            <tr>
+              <td class="ps-3">{{ a.name }} <small class="text-muted">({{ a.roll_number }})</small></td>
+              <td>{{ a.alert_type }}</td>
+              <td style="font-size:11px;">{{ a.sent_at[:16] }}</td>
+              <td><span class="badge bg-{{ 'success' if a.status == 'sent' else 'secondary' }}" style="font-size:10px;">{{ a.status }}</span></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="text-center text-muted py-3">No alerts sent yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

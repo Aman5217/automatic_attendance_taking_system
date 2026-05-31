@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Users{% endblock %}
+{% block content %}
+<div class="topbar"><h4>User Accounts</h4></div>
+<div class="card">
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead><tr><th class="ps-3">Username</th><th>Role</th><th>Email</th><th>Last Login</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td class="ps-3"><strong>{{ u.username }}</strong></td>
+          <td>
+            {% if u.role == 'admin' %}<span class="badge" style="background:#e74c3c;font-size:10px;">Admin</span>
+            {% elif u.role == 'teacher' %}<span class="badge" style="background:#048A81;font-size:10px;">Teacher</span>
+            {% else %}<span class="badge" style="background:#f39c12;font-size:10px;">Student</span>{% endif %}
+          </td>
+          <td style="font-size:11px;">{{ u.email or '—' }}</td>
+          <td style="font-size:11px;color:#6c757d;">{{ u.last_login[:16] if u.last_login else 'Never' }}</td>
+          <td>
+            {% if u.is_active %}<span class="badge bg-success" style="font-size:10px;">Active</span>
+            {% else %}<span class="badge bg-danger" style="font-size:10px;">Disabled</span>{% endif %}
+          </td>
+          <td>
+            {% if u.role != 'admin' %}
+            <form action="{{ url_for('admin_toggle_user', uid=u.id) }}" method="POST" class="d-inline">
+              <button class="btn btn-sm btn-{{ 'outline-danger' if u.is_active else 'outline-success' }}">
+                {{ 'Disable' if u.is_active else 'Enable' }}
+              </button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

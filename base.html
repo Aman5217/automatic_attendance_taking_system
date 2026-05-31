@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Session Result{% endblock %}
+{% block content %}
+<div class="topbar">
+  <h4>Session Result</h4>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('teacher_report_download', session_id=sess.id, format='xlsx') }}" class="btn btn-success btn-sm"><i class="bi bi-file-earmark-excel me-1"></i>Excel</a>
+    <a href="{{ url_for('teacher_report_download', session_id=sess.id, format='csv') }}" class="btn btn-outline-success btn-sm"><i class="bi bi-filetype-csv me-1"></i>CSV</a>
+    <a href="{{ url_for('teacher_start_session') }}" class="btn btn-primary btn-sm"><i class="bi bi-plus me-1"></i>New Session</a>
+  </div>
+</div>
+<!-- Summary -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="stat-card"><div class="ico" style="background:#e8eef7;color:#2E4057;"><i class="bi bi-people"></i></div><div><div class="val">{{ total }}</div><div class="lbl">Total Students</div></div></div></div>
+  <div class="col-md-3"><div class="stat-card"><div class="ico" style="background:#d4edda;color:#155724;"><i class="bi bi-person-check"></i></div><div><div class="val" style="color:#155724;">{{ present }}</div><div class="lbl">Present</div></div></div></div>
+  <div class="col-md-3"><div class="stat-card"><div class="ico" style="background:#f8d7da;color:#721c24;"><i class="bi bi-person-x"></i></div><div><div class="val" style="color:#721c24;">{{ total - present }}</div><div class="lbl">Absent</div></div></div></div>
+  <div class="col-md-3"><div class="stat-card"><div class="ico" style="background:#fff3cd;color:#856404;"><i class="bi bi-percent"></i></div><div><div class="val" style="color:#856404;">{{ "%.0f"|format(present/total*100) if total else 0 }}%</div><div class="lbl">Attendance</div></div></div></div>
+</div>
+<!-- Records Table -->
+<div class="card">
+  <div class="card-header"><h6>{{ subj.name }} ({{ subj.code }}) – {{ sess.date }} – Sem {{ sess.semester }}-{{ sess.section }}</h6></div>
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead><tr><th class="ps-3">#</th><th>Name</th><th>Roll No</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for r in records %}
+        <tr>
+          <td class="ps-3">{{ loop.index }}</td>
+          <td><div class="d-flex align-items-center gap-2"><div class="avatar">{{ r.name[0] }}</div>{{ r.name }}</div></td>
+          <td><code style="font-size:11px;">{{ r.roll_number }}</code></td>
+          <td>{% if r.status == 'Present' %}<span class="badge-present">✓ Present</span>{% else %}<span class="badge-absent">✗ Absent</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

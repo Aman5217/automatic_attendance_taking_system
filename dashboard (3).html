@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Take Attendance{% endblock %}
+{% block content %}
+<div class="topbar"><h4>Take Attendance</h4></div>
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header"><h6>Start New Attendance Session</h6></div>
+      <div class="card-body p-4">
+        {% if subjects %}
+        <form method="POST">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Subject *</label>
+            <select name="subject_id" class="form-select" required>
+              <option value="">– Select Subject –</option>
+              {% for s in subjects %}<option value="{{ s.id }}">{{ s.name }} ({{ s.code }}) – Sem {{ s.semester }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Section</label>
+            <select name="section" class="form-select">
+              <option value="A">Section A</option><option value="B">Section B</option><option value="C">Section C</option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Attendance Method</label>
+            <div class="row g-2">
+              <div class="col-6">
+                <input type="radio" class="btn-check" name="method" id="face" value="face" checked>
+                <label class="btn btn-outline-primary w-100" for="face"><i class="bi bi-camera-video me-2"></i>Face Recognition</label>
+              </div>
+              <div class="col-6">
+                <input type="radio" class="btn-check" name="method" id="manual" value="manual">
+                <label class="btn btn-outline-secondary w-100" for="manual"><i class="bi bi-check2-square me-2"></i>Manual</label>
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary w-100"><i class="bi bi-play-circle me-2"></i>Start Session</button>
+        </form>
+        {% else %}
+        <div class="alert alert-warning"><i class="bi bi-exclamation-triangle me-2"></i>No subjects assigned to you. Contact admin.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

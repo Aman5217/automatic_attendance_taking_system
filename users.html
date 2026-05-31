@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Capture Face – {{ student.name }}{% endblock %}
+{% block content %}
+<div class="topbar">
+  <h4>Live Face Capture</h4>
+  <a href="{{ url_for('admin_students') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Back</a>
+</div>
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header"><h6>📷 Registering face for: <strong>{{ student.name }}</strong> ({{ student.roll_number }})</h6></div>
+      <div class="card-body p-4">
+        <div style="position:relative;background:#000;border-radius:10px;overflow:hidden;margin-bottom:16px;">
+          <video id="video" autoplay playsinline style="width:100%;max-height:340px;display:block;object-fit:cover;"></video>
+          <canvas id="overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;"></canvas>
+          <div id="status" style="position:absolute;top:12px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.6);color:#fff;padding:5px 14px;border-radius:20px;font-size:12px;white-space:nowrap;">Starting camera...</div>
+          <div style="position:absolute;bottom:0;left:0;right:0;height:5px;background:rgba(255,255,255,.15);">
+            <div id="pbar" style="height:100%;width:0%;background:#00e676;transition:width .3s;"></div>
+          </div>
+        </div>
+        <canvas id="preview" style="display:none;width:100%;border-radius:10px;margin-bottom:16px;"></canvas>
+        <div class="d-flex gap-2 justify-content-center" id="btns">
+          <button id="btnCapture" class="btn btn-primary px-4" onclick="startCapture()" disabled>
+            <i class="bi bi-camera me-2"></i>Capture (30 photos)
+          </button>
+          <button id="btnRetake" class="btn btn-outline-secondary px-4" onclick="retake()" style="display:none;"><i class="bi bi-arrow-counterclockwise me-2"></i>Retake</button>
+          <button id="btnSave" class="btn btn-success px-4" onclick="savePhoto()" style="display:none;"><i class="bi bi-check-circle me-2"></i>Save & Register</button>
+        </div>
+        <div class="alert alert-info mt-3 mb-0" style="font-size:12px;">
+          <i class="bi bi-info-circle me-2"></i>Look straight at the camera in good lighting. Keep face centered inside the oval guide.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<form id="upload-form" action="{{ url_for('admin_upload_face', sid=student.id) }}" method="POST" enctype="multipart/form-data" style="display:none;">
+  <input type="file" id="photo-input" name="photo">
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+const video=document.getElementById('video'),overlay=document.getElementById('overlay'),
+preview=document.getElementById('preview'),status=document.getElementById('status'),
+pbar=document.getElementById('pbar'),btnCapture=document.getElementById('btnCapture'),
+btnRetake=document.getElementById('btnRetake'),btnSave=document.getElementById('btnSave');
+let stream=null,blob=null;
+window.addEventListener('load',async()=>{
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({video:{width:640,height:480,facingMode:'user'}});
+    video.srcObject=stream;
+    video.addEventListener('loadedmetadata',()=>{
+      overlay.width=video.videoWidth;overlay.height=video.videoHeight;
+      status.textContent='Camera ready – click Capture';btnCapture.disabled=false;
+      const ctx=overlay.getContext('2d');
+      (function loop(){if(!video.paused&&!video.ended){ctx.clearRect(0,0,overlay.width,overlay.height);ctx.strokeStyle='rgba(0,230,118,.8)';ctx.lineWidth=3;ctx.setLineDash([8,4]);ctx.beginPath();ctx.ellipse(overlay.width/2,overlay.height/2,overlay.width*.22,overlay.height*.38,0,0,2*Math.PI);ctx.stroke();ctx.setLineDash([]);requestAnimationFrame(loop);}})();
+    });
+  }catch(e){status.textContent='Camera denied. Please allow camera access.';status.style.background='rgba(200,0,0,.7)';}
+});
+async function startCapture(){
+  btnCapture.disabled=true;const tc=document.createElement('canvas');
+  tc.width=video.videoWidth||640;tc.height=video.videoHeight||480;
+  const ctx=tc.getContext('2d');const frames=[];
+  for(let i=0;i<30;i++){ctx.drawImage(video,0,0,tc.width,tc.height);frames.push(tc.toDataURL('image/jpeg',.92));pbar.style.width=((i+1)/30*100)+'%';status.textContent=`Capturing ${i+1}/30`;await new Promise(r=>setTimeout(r,100));}
+  const mid=frames[14];blob=dataURLtoBlob(mid);
+  const img=new Image();img.onload=()=>{preview.width=img.width;preview.height=img.height;preview.getContext('2d').drawImage(img,0,0);preview.style.display='block';};img.src=mid;
+  video.style.display='none';overlay.style.display='none';
+  status.textContent='✓ 30 photos captured!';status.style.background='rgba(0,150,80,.8)';
+  btnRetake.style.display='inline-block';btnSave.style.display='inline-block';
+}
+function retake(){video.style.display='block';overlay.style.display='block';preview.style.display='none';btnRetake.style.display='none';btnSave.style.display='none';btnCapture.disabled=false;pbar.style.width='0%';status.textContent='Camera ready – click Capture';status.style.background='rgba(0,0,0,.6)';blob=null;}
+function savePhoto(){if(!blob)return;btnSave.disabled=true;btnSave.textContent='Saving...';const f=new File([blob],'face.jpg',{type:'image/jpeg'});const dt=new DataTransfer();dt.items.add(f);document.getElementById('photo-input').files=dt.files;document.getElementById('upload-form').submit();}
+function dataURLtoBlob(d){const[h,data]=d.split(',');const mime=h.match(/:(.*?);/)[1];const b=atob(data);const arr=new Uint8Array(b.length);for(let i=0;i<b.length;i++)arr[i]=b.charCodeAt(i);return new Blob([arr],{type:mime});}
+window.addEventListener('beforeunload',()=>{if(stream)stream.getTracks().forEach(t=>t.stop());});
+</script>
+{% endblock %}

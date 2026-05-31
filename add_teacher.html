@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<div class="topbar"><h4>Download Reports</h4></div>
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header"><h6><i class="bi bi-file-earmark-excel me-2"></i>Attendance Matrix Report</h6></div>
+      <div class="card-body">
+        <p class="text-muted" style="font-size:12px;">Full attendance matrix: students as rows, sessions as columns. P/A for each session with % summary.</p>
+        <form action="{{ url_for('admin_report_download') }}" method="GET">
+          <div class="row g-2 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold" style="font-size:12px;">Department *</label>
+              <select name="department" class="form-select form-select-sm" required>
+                <option value="">– Select –</option>
+                {% for d in departments %}<option value="{{ d.name }}">{{ d.name }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold" style="font-size:12px;">Semester *</label>
+              <select name="semester" class="form-select form-select-sm" required>
+                {% for i in range(1,9) %}<option value="{{ i }}">Sem {{ i }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold" style="font-size:12px;">Section</label>
+              <select name="section" class="form-select form-select-sm">
+                <option value="A">A</option><option value="B">B</option><option value="C">C</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold" style="font-size:12px;">Subject (optional)</label>
+              <select name="subject_id" class="form-select form-select-sm">
+                <option value="">All Subjects</option>
+                {% for s in subjects %}<option value="{{ s.id }}">{{ s.name }} ({{ s.code }})</option>{% endfor %}
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold" style="font-size:12px;">From</label>
+              <input type="date" name="start" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold" style="font-size:12px;">To</label>
+              <input type="date" name="end" value="{{ today }}" class="form-control form-control-sm">
+            </div>
+          </div>
+          <div class="d-flex gap-2">
+            <button name="format" value="xlsx" class="btn btn-success flex-fill btn-sm"><i class="bi bi-file-earmark-excel me-1"></i>Excel</button>
+            <button name="format" value="csv" class="btn btn-outline-success flex-fill btn-sm"><i class="bi bi-filetype-csv me-1"></i>CSV</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header"><h6>Report Contents</h6></div>
+      <div class="card-body">
+        <ul style="font-size:12px;" class="text-muted ps-3">
+          <li>All students listed with roll numbers</li>
+          <li>Each session as a separate column (date shown)</li>
+          <li><strong>P</strong> = Present (green), <strong>A</strong> = Absent (red)</li>
+          <li>Total present count and attendance percentage</li>
+          <li>Yellow highlight for students below 75%</li>
+          <li>Summary: total sessions, present, absent</li>
+        </ul>
+        <div class="alert alert-info" style="font-size:11px;margin-top:12px;">
+          <i class="bi bi-info-circle me-2"></i>Excel file opens directly in Microsoft Excel or Google Sheets. CSV can be imported into any software.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

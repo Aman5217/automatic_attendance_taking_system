@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Students – UniAttend{% endblock %}
+{% block content %}
+<div class="topbar">
+  <h4>Students</h4>
+  <a href="{{ url_for('admin_add_student') }}" class="btn btn-primary btn-sm"><i class="bi bi-person-plus me-1"></i>Add Student</a>
+</div>
+
+<!-- Filter Bar -->
+<div class="card mb-3">
+  <div class="card-body py-2">
+    <form method="GET" class="d-flex gap-2 flex-wrap align-items-end">
+      <div>
+        <label class="form-label mb-1" style="font-size:11px;font-weight:600;">Department</label>
+        <select name="dept" class="form-select form-select-sm">
+          <option value="">All</option>
+          {% for d in departments %}<option value="{{ d.name }}" {{ 'selected' if filter_dept == d.name }}>{{ d.name }}</option>{% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="form-label mb-1" style="font-size:11px;font-weight:600;">Semester</label>
+        <select name="sem" class="form-select form-select-sm">
+          <option value="">All</option>
+          {% for i in range(1,9) %}<option value="{{ i }}" {{ 'selected' if filter_sem == i|string }}>Sem {{ i }}</option>{% endfor %}
+        </select>
+      </div>
+      <button class="btn btn-primary btn-sm">Filter</button>
+      <a href="{{ url_for('admin_students') }}" class="btn btn-outline-secondary btn-sm">Reset</a>
+      <span class="ms-auto" style="font-size:12px;color:#6c757d;align-self:center;">{{ students|length }} students</span>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th class="ps-3">#</th><th>Name</th><th>Roll No</th><th>Department</th><th>Sem</th><th>Section</th><th>Email</th><th>Face</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in students %}
+          <tr>
+            <td class="ps-3">{{ loop.index }}</td>
+            <td><div class="d-flex align-items-center gap-2"><div class="avatar">{{ s.name[0] }}</div><strong>{{ s.name }}</strong></div></td>
+            <td><code style="font-size:11px;">{{ s.roll_number }}</code></td>
+            <td>{{ s.department }}</td>
+            <td>{{ s.semester }}</td>
+            <td>{{ s.section }}</td>
+            <td style="font-size:11px;">{{ s.email or '—' }}</td>
+            <td>
+              {% if s.face_registered %}
+                <span style="background:#d4edda;color:#155724;padding:2px 8px;border-radius:20px;font-size:10px;">✓ Done</span>
+              {% else %}
+                <span style="background:#fff3cd;color:#856404;padding:2px 8px;border-radius:20px;font-size:10px;">⚠ Not set</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{{ url_for('admin_capture_face', sid=s.id) }}" class="btn btn-sm btn-success" title="Live Capture"><i class="bi bi-camera-video"></i></a>
+              <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#uploadModal{{ s.id }}" title="Upload Photo"><i class="bi bi-upload"></i></button>
+              <form action="{{ url_for('admin_delete_student', sid=s.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete {{ s.name }}?')">
+                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+              </form>
+            </td>
+          </tr>
+          <!-- Upload Modal -->
+          <div class="modal fade" id="uploadModal{{ s.id }}" tabindex="-1">
+            <div class="modal-dialog"><div class="modal-content">
+              <form action="{{ url_for('admin_upload_face', sid=s.id) }}" method="POST" enctype="multipart/form-data">
+                <div class="modal-header"><h5 class="modal-title">Upload Photo – {{ s.name }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body"><input type="file" name="photo" class="form-control" accept=".jpg,.jpeg,.png" required></div>
+                <div class="modal-footer"><button type="submit" class="btn btn-primary">Upload & Register</button></div>
+              </form>
+            </div></div>
+          </div>
+          {% else %}
+          <tr><td colspan="9" class="text-center text-muted py-4">No students found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

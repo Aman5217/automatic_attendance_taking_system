@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard – UniAttend{% endblock %}
+{% block content %}
+<div class="topbar">
+  <h4>Admin Dashboard</h4>
+  <span style="font-size:12px;color:#6c757d;">{{ today }}</span>
+</div>
+
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="stat-card">
+      <div class="ico" style="background:#e8eef7;color:#2E4057;"><i class="bi bi-people-fill"></i></div>
+      <div><div class="val">{{ stats.total_students }}</div><div class="lbl">Total Students</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card">
+      <div class="ico" style="background:#d4edda;color:#155724;"><i class="bi bi-person-badge-fill"></i></div>
+      <div><div class="val" style="color:#155724;">{{ stats.total_teachers }}</div><div class="lbl">Teachers</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card">
+      <div class="ico" style="background:#fff3cd;color:#856404;"><i class="bi bi-journal-bookmark-fill"></i></div>
+      <div><div class="val" style="color:#856404;">{{ stats.total_subjects }}</div><div class="lbl">Subjects</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card">
+      <div class="ico" style="background:#cce5ff;color:#004085;"><i class="bi bi-camera-fill"></i></div>
+      <div><div class="val" style="color:#004085;">{{ stats.face_registered }}</div><div class="lbl">Faces Registered</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-lg-4">
+    <div class="stat-card">
+      <div class="ico" style="background:#f8d7da;color:#721c24;"><i class="bi bi-calendar-check-fill"></i></div>
+      <div><div class="val" style="color:#721c24;">{{ stats.today_sessions }}</div><div class="lbl">Sessions Today</div></div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="stat-card">
+      <div class="ico" style="background:#d4edda;color:#155724;"><i class="bi bi-person-check-fill"></i></div>
+      <div><div class="val" style="color:#155724;">{{ stats.today_present }}</div><div class="lbl">Present Today</div></div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="stat-card">
+      <div class="ico" style="background:#e8eef7;color:#2E4057;"><i class="bi bi-collection-fill"></i></div>
+      <div><div class="val">{{ stats.total_sessions }}</div><div class="lbl">Total Sessions</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <!-- Quick Actions -->
+  <div class="col-lg-4">
+    <div class="card h-100">
+      <div class="card-header"><h6>Quick Actions</h6></div>
+      <div class="card-body d-flex flex-column gap-2">
+        <a href="{{ url_for('admin_add_student') }}" class="btn btn-primary btn-sm w-100"><i class="bi bi-person-plus me-2"></i>Add Student</a>
+        <a href="{{ url_for('admin_add_teacher') }}" class="btn btn-accent btn-sm w-100"><i class="bi bi-person-badge me-2"></i>Add Teacher</a>
+        <a href="{{ url_for('admin_subjects') }}" class="btn btn-outline-secondary btn-sm w-100"><i class="bi bi-journal-plus me-2"></i>Manage Subjects</a>
+        <a href="{{ url_for('admin_alerts') }}" class="btn btn-warning btn-sm w-100"><i class="bi bi-bell me-2"></i>Send Attendance Alerts</a>
+        <a href="{{ url_for('admin_reports') }}" class="btn btn-success btn-sm w-100"><i class="bi bi-file-earmark-excel me-2"></i>Download Reports</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Today's Sessions -->
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header"><h6>Today's Attendance Sessions</h6></div>
+      <div class="card-body p-0">
+        {% if sessions_today %}
+        <table class="table table-hover mb-0">
+          <thead><tr><th class="ps-3">Subject</th><th>Dept</th><th>Sem</th><th>Teacher</th><th>Present</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for s in sessions_today %}
+            <tr>
+              <td class="ps-3"><strong>{{ s.subject_name }}</strong><br><small class="text-muted">{{ s.code }}</small></td>
+              <td>{{ s.department }}</td>
+              <td>Sem {{ s.semester }}-{{ s.section }}</td>
+              <td>{{ s.teacher_name }}</td>
+              <td><span class="badge-present">{{ s.present_count }}/{{ s.total_students }}</span></td>
+              <td><span class="badge bg-{{ 'success' if s.status == 'closed' else 'warning' }} text-white" style="font-size:10px;">{{ s.status }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="text-center text-muted py-4"><i class="bi bi-inbox" style="font-size:2rem;"></i><p class="mt-2 mb-0">No sessions today.</p></div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Alerts -->
+{% if alerts_log %}
+<div class="card mt-3">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h6>Recent Alerts Sent</h6>
+    <a href="{{ url_for('admin_alerts') }}" class="btn btn-sm btn-outline-primary">View All</a>
+  </div>
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead><tr><th class="ps-3">Student</th><th>Roll No</th><th>Message</th><th>Sent At</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for a in alerts_log %}
+        <tr>
+          <td class="ps-3">{{ a.name }}</td>
+          <td><code style="font-size:10px;">{{ a.roll_number }}</code></td>
+          <td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ a.message }}</td>
+          <td style="font-size:11px;color:#6c757d;">{{ a.sent_at[:16] }}</td>
+          <td><span class="badge bg-{{ 'success' if a.status == 'sent' else 'danger' }}" style="font-size:10px;">{{ a.status }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

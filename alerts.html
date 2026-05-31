@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Subjects{% endblock %}
+{% block content %}
+<div class="topbar"><h4>Subjects</h4></div>
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header"><h6>Add Subject</h6></div>
+      <div class="card-body">
+        <form method="POST">
+          <div class="mb-3"><label class="form-label fw-semibold">Subject Name *</label><input type="text" name="name" class="form-control" placeholder="e.g. Data Structures" required></div>
+          <div class="mb-3"><label class="form-label fw-semibold">Subject Code *</label><input type="text" name="code" class="form-control" placeholder="e.g. CS301" required></div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Department *</label>
+            <select name="department" class="form-select" required>
+              <option value="">– Select –</option>
+              {% for d in departments %}<option value="{{ d.name }}">{{ d.name }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col">
+              <label class="form-label fw-semibold">Semester *</label>
+              <select name="semester" class="form-select" required>
+                {% for i in range(1,9) %}<option value="{{ i }}">Sem {{ i }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="col">
+              <label class="form-label fw-semibold">Credits</label>
+              <select name="credits" class="form-select">
+                <option value="2">2</option><option value="3" selected>3</option><option value="4">4</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Add Subject</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h6>All Subjects ({{ subjects|length }})</h6>
+        <form method="GET" class="d-flex gap-2">
+          <select name="dept" class="form-select form-select-sm"><option value="">All Depts</option>{% for d in departments %}<option value="{{ d.name }}">{{ d.name }}</option>{% endfor %}</select>
+          <select name="sem" class="form-select form-select-sm"><option value="">All Sem</option>{% for i in range(1,9) %}<option value="{{ i }}">Sem {{ i }}</option>{% endfor %}</select>
+          <button class="btn btn-outline-primary btn-sm">Go</button>
+        </form>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+          <thead><tr><th class="ps-3">Code</th><th>Name</th><th>Department</th><th>Semester</th><th>Credits</th></tr></thead>
+          <tbody>
+            {% for s in subjects %}
+            <tr>
+              <td class="ps-3"><code style="font-size:11px;">{{ s.code }}</code></td>
+              <td>{{ s.name }}</td>
+              <td>{{ s.department }}</td>
+              <td>Sem {{ s.semester }}</td>
+              <td>{{ s.credits }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="text-center text-muted py-4">No subjects added.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

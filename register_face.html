@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<div class="topbar"><h4>Download Reports</h4></div>
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header"><h6>Subject-wise Report</h6></div>
+      <div class="card-body">
+        <form action="{{ url_for('teacher_report_download') }}" method="GET">
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:12px;">Subject *</label>
+            <select name="subject_id" class="form-select form-select-sm" required>
+              <option value="">– Select –</option>
+              {% for s in subjects %}<option value="{{ s.id }}">{{ s.name }} ({{ s.code }})</option>{% endfor %}
+            </select>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col">
+              <label class="form-label fw-semibold" style="font-size:12px;">Department</label>
+              <input type="text" name="department" class="form-control form-control-sm" value="{{ teacher.department }}">
+            </div>
+            <div class="col">
+              <label class="form-label fw-semibold" style="font-size:12px;">Semester</label>
+              <select name="semester" class="form-select form-select-sm">
+                {% for i in range(1,9) %}<option value="{{ i }}">Sem {{ i }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="col">
+              <label class="form-label fw-semibold" style="font-size:12px;">Section</label>
+              <select name="section" class="form-select form-select-sm">
+                <option value="A">A</option><option value="B">B</option><option value="C">C</option>
+              </select>
+            </div>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col"><label class="form-label fw-semibold" style="font-size:12px;">From</label><input type="date" name="start" class="form-control form-control-sm"></div>
+            <div class="col"><label class="form-label fw-semibold" style="font-size:12px;">To</label><input type="date" name="end" value="{{ today }}" class="form-control form-control-sm"></div>
+          </div>
+          <div class="d-flex gap-2">
+            <button name="format" value="xlsx" class="btn btn-success flex-fill btn-sm"><i class="bi bi-file-earmark-excel me-1"></i>Excel</button>
+            <button name="format" value="csv" class="btn btn-outline-success flex-fill btn-sm"><i class="bi bi-filetype-csv me-1"></i>CSV</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header"><h6>Tips</h6></div>
+      <div class="card-body">
+        <ul style="font-size:12px;" class="text-muted ps-3">
+          <li>Excel report shows P/A matrix for all students</li>
+          <li>Yellow = Attendance below 75%</li>
+          <li>CSV can be imported into Excel or Google Sheets</li>
+          <li>Leave dates empty to include all sessions</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

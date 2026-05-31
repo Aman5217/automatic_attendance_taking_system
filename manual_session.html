@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Face Recognition Session{% endblock %}
+{% block content %}
+<div class="topbar"><h4>Face Recognition Attendance</h4></div>
+<div class="row g-3">
+  <div class="col-lg-5">
+    <div class="card">
+      <div class="card-header"><h6>Session Details</h6></div>
+      <div class="card-body">
+        <table class="table table-sm mb-3">
+          <tr><td class="text-muted" style="font-size:12px;">Subject</td><td><strong>{{ subj.name }} ({{ subj.code }})</strong></td></tr>
+          <tr><td class="text-muted" style="font-size:12px;">Department</td><td>{{ sess.department }}</td></tr>
+          <tr><td class="text-muted" style="font-size:12px;">Semester</td><td>Sem {{ sess.semester }} – Section {{ sess.section }}</td></tr>
+          <tr><td class="text-muted" style="font-size:12px;">Date</td><td>{{ sess.date }}</td></tr>
+          <tr><td class="text-muted" style="font-size:12px;">Total Students</td><td>{{ sess.total_students }}</td></tr>
+        </table>
+        <div class="alert alert-info" style="font-size:12px;"><i class="bi bi-info-circle me-2"></i>Click Launch to open the webcam window. Students face the camera one by one. Press <kbd>Q</kbd> to stop early.</div>
+        <form method="POST">
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:12px;">Duration</label>
+            <select name="duration" class="form-select form-select-sm">
+              <option value="60">1 minute</option>
+              <option value="120" selected>2 minutes</option>
+              <option value="300">5 minutes</option>
+              <option value="600">10 minutes</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-accent w-100"><i class="bi bi-camera-video me-2"></i>Launch Recognition Window</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-header"><h6>How It Works</h6></div>
+      <div class="card-body">
+        {% for step, title, desc in [
+          ('1','Select duration','Choose how long the camera stays open.'),
+          ('2','Launch window','OpenCV webcam window opens on your screen.'),
+          ('3','Students look at camera','Each student faces the camera for 1-2 seconds.'),
+          ('4','Auto recognition','System matches face → marks Present in database.'),
+          ('5','Session closes','After duration or Q press, all records are saved.')
+        ] %}
+        <div class="d-flex gap-3 mb-3">
+          <div style="width:28px;height:28px;border-radius:50%;background:#e8eef7;color:#2E4057;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">{{ step }}</div>
+          <div><div style="font-size:12px;font-weight:600;color:#2E4057;">{{ title }}</div><div style="font-size:11px;color:#6c757d;">{{ desc }}</div></div>
+        </div>
+        {% endfor %}
+        <div class="alert alert-warning mb-0" style="font-size:11px;"><i class="bi bi-exclamation-triangle me-2"></i>Students must have their face registered first. Good lighting improves accuracy.</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

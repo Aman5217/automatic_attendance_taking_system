@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Teachers{% endblock %}
+{% block content %}
+<div class="topbar">
+  <h4>Teachers</h4>
+  <a href="{{ url_for('admin_add_teacher') }}" class="btn btn-primary btn-sm"><i class="bi bi-person-plus me-1"></i>Add Teacher</a>
+</div>
+<div class="card">
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead><tr><th class="ps-3">#</th><th>Name</th><th>Employee ID</th><th>Department</th><th>Email</th><th>Phone</th></tr></thead>
+      <tbody>
+        {% for t in teachers %}
+        <tr>
+          <td class="ps-3">{{ loop.index }}</td>
+          <td><div class="d-flex align-items-center gap-2"><div class="avatar">{{ t.name[0] }}</div><strong>{{ t.name }}</strong></div></td>
+          <td><code style="font-size:11px;">{{ t.employee_id }}</code></td>
+          <td>{{ t.department }}</td>
+          <td style="font-size:11px;">{{ t.email or '—' }}</td>
+          <td style="font-size:11px;">{{ t.phone or '—' }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-center text-muted py-4">No teachers added yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
